@@ -57,7 +57,7 @@ Tri3SkeletonUI::Tri3SkeletonUI(regina::Triangulation<3>* packet,
     addTab(new Tri3SkelCompUI(packet, this), tr("&Skeletal Components"));
     addTab(new FacetGraphTab(new Dim3FaceGraphData(packet), this),
         tr("&Graphs"));
-    addTab(new Tri3ThEqs(packet, this), tr("&Thurston's Equations"));
+    addTab(new Tri3ThEqs(packet, this), tr("&Angle Equations"));
 }
 
 Tri3SkelCompUI::Tri3SkelCompUI(regina::Triangulation<3>* packet,
