@@ -1100,6 +1100,26 @@ class Triangulation<3> : public Packet, public detail::TriangulationBase<3> {
          */
         const AngleStructure* generalAngleStructure() const;
 
+        /**
+         * Calculates the matrix containing the coefficients of the edge
+         * consistency equations along internal edges. This matrix is also
+         * known as the "Neumann-Zagier" matrix of Thurston's gluing equations.
+         *
+         * The rows of the returned matrix correspond to the internal edges of
+         * the triangulations, whereas the columns correspond to the pairs of
+         * opposite edges of the tetrahedra.
+         *
+         * Each tetrahedron gives rise to three consecutive columns of the matrix,
+         * corresponding to the edge pairs:
+         * [01], [23];
+         * [02], [13];
+         * [03], [12]
+         * in this order.
+         *
+         * @return a matrix of the edge consistency equations for this triangulation.
+         */
+        MatrixInt edgeConsistencyEquations() const;
+
         /*@}*/
         /**
          * \name Skeletal Transformations

@@ -610,5 +610,37 @@ bool Triangulation<3>::saveRecogniser(const char* filename) const {
     return true;
 }
 
+MatrixInt Triangulation<3>::edgeConsistencyEquations() const {
+    // We start by determining the size of the resulting matrix
+    size_t num_rows = 0;
+    for (auto edge : edges())
+        if (!edge->isBoundary()) // only count non-boundary edges
+            ++num_rows;
+    size_t num_cols = 3 * size();
+
+    if (!num_rows || !num_cols)
+        return MatrixInt(); // Default-initialised, empty matrix
+
+    auto result = MatrixInt(num_rows, num_cols);
+    // The matrix is initialised to all zeros. We must now increment
+    // the entries corresponding to tetrahedron-to-edge incidences.
+    size_t current_row = 0;
+    for (auto edge : edges()) {
+        if (edge->isBoundary())
+            continue;
+        for (auto& incidence : *edge) {
+            size_t tet_number = incidence.tetrahedron()->index();
+            int which_tetrahedral_edge = incidence.edge();
+            // Find which pair of opposite edges the edge belongs to
+            int which_quad = (which_tetrahedral_edge > 2)?
+                             5 - which_tetrahedral_edge:
+                             which_tetrahedral_edge;
+            ++result.entry(current_row, 3*tet_number + which_quad);
+        }
+        ++current_row;
+    }
+    return result;
+}
+
 } // namespace regina
 
