@@ -10,6 +10,7 @@ SET ( FILES
   filtercreator.cpp
   filterprop.cpp
   gaprunner.cpp
+  gluingequations.cpp
   groupwidget.cpp
   hypercompatui.cpp
   hypercoordinateui.cpp
