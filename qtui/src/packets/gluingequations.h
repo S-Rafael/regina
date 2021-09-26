@@ -38,10 +38,13 @@
 #ifndef __GLUINGEQUATIONS_H__
 #define __GLUINGEQUATIONS_H__
 
+#include <QCheckBox>
 #include <QLabel>
 #include <QLayout>
 #include <QPlainTextEdit>
+#include <QString>
 
+#include "maths/matrix.h" // For MatrixInt
 #include "triangulation/dim3.h"
 #include "packettabui.h"
 
@@ -60,10 +63,16 @@ private:
     /**
      * Internal UI components
      */
+    QCheckBox* latex;
     QBoxLayout* layout;
     QPlainTextEdit* textarea;
     QLabel* title;
     QWidget* ui;
+
+    /**
+     * Neumann-Zagier matrices
+     */
+    regina::MatrixInt edgeEquations;
 
 public:
     /**
@@ -84,7 +93,34 @@ public:
      */
     inline QWidget* getInterface() final override { return ui; }
 
-    inline void refresh() final override {};
+    inline void refresh() final override { recalculate(); };
+
+private:
+    /**
+     * Converts a matrix of integers to a QString.
+     * If the matrix is empty, the return value contains the
+     * text "(empty matrix)".
+     * TODO: perhaps this should be a member function of the Matrix class?
+     */
+    QString matrixToString(const regina::MatrixInt&) const;
+
+    /**
+     * Converts a matrix to a Latex source string representing it.
+     * TODO: perhaps this should be a member function of the Matrix class?
+     */
+    QString matrixToLatex(const regina::MatrixInt&) const;
+
+    /**
+     * Recalculates the gluing matrices
+     */
+    void recalculate();
+
+public slots:
+    /**
+     * Populates the text area with a text representation of
+     * the matrix
+     */
+    void display(bool latexMode);
 };
 
 #endif // __GLUINGEQUATIONS_H__
