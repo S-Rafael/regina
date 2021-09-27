@@ -56,6 +56,11 @@ class Tri3ThEqs : public QObject, public PacketViewerTab
     Q_OBJECT
 private:
     /**
+     * Constants
+     */
+    inline static const char* LatexMatrixEnvironment = "bmatrix";
+
+    /**
      * Packet details
      */
     regina::Triangulation<3>* tri;
@@ -93,7 +98,14 @@ public:
      */
     inline QWidget* getInterface() final override { return ui; }
 
-    inline void refresh() final override { recalculate(); };
+    /**
+     * @brief refresh - recalculates the gluing matrices
+     */
+    inline void refresh() final override
+    {
+        edgeEquations = tri->edgeConsistencyEquations();
+        display(latex->isChecked());
+    }
 
 private:
     /**
@@ -102,23 +114,19 @@ private:
      * text "(empty matrix)".
      * TODO: perhaps this should be a member function of the Matrix class?
      */
-    QString matrixToString(const regina::MatrixInt&) const;
+    static QString matrixToString(const regina::MatrixInt&);
 
     /**
      * Converts a matrix to a Latex source string representing it.
      * TODO: perhaps this should be a member function of the Matrix class?
      */
-    QString matrixToLatex(const regina::MatrixInt&) const;
-
-    /**
-     * Recalculates the gluing matrices
-     */
-    void recalculate();
+    static QString matrixToLatex(const regina::MatrixInt&);
 
 public slots:
     /**
      * Populates the text area with a text representation of
-     * the matrix
+     * the matrix.
+     * @param latexMode - whether to display a Latex representation
      */
     void display(bool latexMode);
 };

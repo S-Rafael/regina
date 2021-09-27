@@ -55,9 +55,10 @@ Tri3ThEqs::Tri3ThEqs(regina::Triangulation<3>* packet,
     title = new QLabel(tr("Coefficients of angle equations about internal edges:"), ui);
     layout->addWidget(title);
 
-    textarea = new QPlainTextEdit();
-    // We try to create a monospace font, which may be actually mapped
-    // to different fonts on different target systems.
+    textarea = new QPlainTextEdit(ui);
+    // We try to create a 'monospace' font, which may be actually mapped
+    // to different fonts on different target systems. For this reason,
+    // the "style hint" is probably more important.
     QFont font("Monospace", 12);
     font.setStyleHint(QFont::Monospace);
     font.setFixedPitch(true);
@@ -70,32 +71,29 @@ Tri3ThEqs::Tri3ThEqs(regina::Triangulation<3>* packet,
     layout->addWidget(latex);
     // Bind the checkbox's change of state
     connect(latex, SIGNAL(toggled(bool)), this, SLOT(display(bool)));
-    recalculate();
+    refresh(); // recalculate the matrices
 }
 
-QString Tri3ThEqs::matrixToString(const regina::MatrixInt& M) const
+QString Tri3ThEqs::matrixToString(const regina::MatrixInt& M)
 {
     if (!M.columns() || !M.rows())
         return QString("(empty matrix)");
 
-    std::stringstream buffer;
-    M.writeTextLong(buffer);
-    std::string text = buffer.str();
-    const char* c_string = text.c_str();
-    // Note: the QString constructor copies the data (rewriting them
+    std::string text = M.detail();
+    // Note: the QString constructor copies the data (rewriting it
     // as UTF-8), so the QString will be good even after the variable
     // `text` goes out of scope:
-    return QString(c_string);
+    return QString(text.c_str());
 }
 
-QString Tri3ThEqs::matrixToLatex(const regina::MatrixInt& M) const
+QString Tri3ThEqs::matrixToLatex(const regina::MatrixInt& M)
 {
     if (!M.columns() || !M.rows())
         return QString("(empty matrix)");
 
     std::stringstream buffer;
     // Start matrix environment and print the (0,0)-entry
-    buffer << "\\begin{bmatrix}\n  " << M.entry(0,0);
+    buffer << "\\begin{" << LatexMatrixEnvironment << "}\n  " << M.entry(0,0);
     // Print the rest of row 0:
     for (size_t c = 1; c < M.columns(); c++)
         buffer << " & " << M.entry(0,c);
@@ -106,26 +104,20 @@ QString Tri3ThEqs::matrixToLatex(const regina::MatrixInt& M) const
         for (size_t c = 1; c < M.columns(); c++)
             buffer << " & " << M.entry(r,c);
     }
-    // Finish the Latex environment
-    buffer << "\n\\end{bmatrix}";
+    // Close the Latex environment
+    buffer << "\n\\end{" << LatexMatrixEnvironment << "}";
     std::string text = buffer.str();
     const char* c_string = text.c_str();
-    // Note: the QString constructor copies the data (rewriting them
+    // Note: the QString constructor copies the data (rewriting it
     // as UTF-8), so the QString will be good even after the variable
     // `text` goes out of scope:
     return QString(c_string);
 }
 
-void Tri3ThEqs::recalculate()
-{
-    edgeEquations = tri->edgeConsistencyEquations();
-    display(latex->isChecked());
-}
-
 void Tri3ThEqs::display(bool latexMode)
 {
-    textarea->setPlainText(
-    latexMode?
-        matrixToLatex(edgeEquations) : matrixToString(edgeEquations)
+    textarea->setPlainText(latexMode?
+        matrixToLatex(edgeEquations):
+       matrixToString(edgeEquations)
                           );
 }
